@@ -21,6 +21,7 @@ public class LobbyMain : MonoBehaviour
         }
     }
 
+    private AsyncOperation oper;
     void Start()
     {
         this.SelectedGunType = GameEnums.eGunType.Default;
@@ -30,11 +31,11 @@ public class LobbyMain : MonoBehaviour
             //선택된 건의 타입 출력 
             Debug.Log(this.selectedGunType);
             
-            AsyncOperation oper =  SceneManager.LoadSceneAsync("Game");
-            oper.completed += (obj) => {
-                //Game씬이 로드됨 
+            this.oper =  SceneManager.LoadSceneAsync("Game");
+            oper.completed += (obj) =>
+            {
                 GameMain gameMain = GameObject.FindObjectOfType<GameMain>();
-                gameMain.Init(this.selectedGunType);    
+                gameMain.Init(this.selectedGunType);
             };
 
         });
