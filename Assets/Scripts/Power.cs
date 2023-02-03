@@ -13,6 +13,6 @@ public class Power : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        this.transform.position += 0.5f * Vector3.down * Time.deltaTime;
     }
 }

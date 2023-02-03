@@ -7,8 +7,10 @@ public class GameMain : MonoBehaviour
 {
     public GameObject[] gunPrefabs;
     public GameObject explosionPrefab;
+    public GameObject powerPrefab;
+
     public PlayerController player;
-    public Enemy[] enemies;
+    public Enemy[] enemyPrefabs;
     public Text txtScore;
 
     private int score;  //total
@@ -16,18 +18,16 @@ public class GameMain : MonoBehaviour
     //Awake - Init - Start - Update 
     public void Init(GameEnums.eGunType selectedGunType)
     {
-        foreach (Enemy enemy in this.enemies)
-        {
-            enemy.onExplode = (fxPos) =>
-            {
-                score += enemy.score;
-                this.txtScore.text = score.ToString();
+        
+        this.StartCoroutine(this.GenerateEnemy());
 
-                //이펙트 생성 
-                GameObject go = Instantiate(this.explosionPrefab);
-                go.transform.position = fxPos;
-            };
-        }
+        this.player.onExplode = () =>
+        {
+            GameObject go = Instantiate(this.explosionPrefab);
+            go.transform.position = this.player.transform.position;
+
+            Destroy(this.player.gameObject);
+        };
 
         this.player.onGetPower = (power) => {
 
@@ -38,7 +38,7 @@ public class GameMain : MonoBehaviour
                 Gun gun = this.CreateGun(GameEnums.eGunType.Multiple);
                 this.player.AttachGun(gun);
             }
-            else 
+            else
             {
                 score += 200;   //스코어 누적 
                 this.txtScore.text = score.ToString();  //UI 갱신 
@@ -53,6 +53,37 @@ public class GameMain : MonoBehaviour
         //플레이어에게 총을 지급 한다 
         this.player.Init(gun);
     }
+
+    private IEnumerator GenerateEnemy()
+    {
+        while (true) {
+            this.CreateEnemy();
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    private void CreateEnemy()
+    {
+        var go = Instantiate(this.enemyPrefabs[Random.Range(0, 2)]);
+        go.transform.position = new Vector3(Random.Range(-2.78f, 2.78f), 6, 0);
+
+        var enemy = go.GetComponent<Enemy>();
+        enemy.onExplode = (fxPos) => {
+            score += enemy.score;
+            this.txtScore.text = score.ToString();
+
+            //이펙트 생성 
+            GameObject go = Instantiate(this.explosionPrefab);
+            go.transform.position = fxPos;
+
+            //아이템 생성 
+            GameObject powerGo = Instantiate(this.powerPrefab);
+            powerGo.transform.position = fxPos;
+            
+        };
+        
+    }
+
 
     private Gun CreateGun(GameEnums.eGunType gunType)
     {

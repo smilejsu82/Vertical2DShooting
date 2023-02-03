@@ -10,6 +10,14 @@ public class PlayerController : MonoBehaviour
 
     public float speed = 1f;
     public System.Action<Power> onGetPower;
+    public System.Action onExplode;
+
+    private Animator anim;
+
+    private void Awake()
+    {
+        this.anim = this.GetComponent<Animator>();
+    }
 
     public void Init(Gun gun)
     {
@@ -22,7 +30,13 @@ public class PlayerController : MonoBehaviour
     {
         float h = Input.GetAxisRaw("Horizontal"); 
         float v = Input.GetAxisRaw("Vertical");
+
+        this.anim.SetInteger("State", (int)h);
+
+
         Vector3 dir = new Vector3(h, v, 0);
+
+
         this.transform.Translate(dir.normalized * this.speed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Space))    //스페이스바를 누르면 
@@ -51,7 +65,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Power") {
+        if (collision.tag == "Power")
+        {
             Debug.Log("아이템 획득");
 
             Power power = collision.gameObject.GetComponent<Power>();
@@ -62,12 +77,18 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);  //아이템 제거 
 
         }
+        else if (collision.tag == "Enemy") {
+
+            this.onExplode();
+
+        }
     }
 
     public void AttachGun(Gun gun)
     {
         this.gun = gun;
         this.gun.transform.SetParent(this.transform);
+        this.gun.transform.localPosition = Vector3.zero;
     }
 
     public void DettachGun()

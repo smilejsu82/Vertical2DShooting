@@ -10,15 +10,22 @@ public class Enemy : MonoBehaviour
         A, B 
     }
 
+    public float speed = 2f;
     public int score;
     public eType type;
     public Action<Vector3> onExplode;
 
     public void Explode()
     {
-        this.onExplode(this.transform.position);
+        if(this.onExplode!= null)
+            this.onExplode(this.transform.position);
 
         Destroy(this.gameObject);
+    }
+
+    private void Update()
+    {
+        this.transform.position += this.speed * Time.deltaTime * Vector3.down;
     }
 
 }
